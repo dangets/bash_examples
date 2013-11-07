@@ -1,0 +1,143 @@
+############################################
+# special variables
+############################################
+$@	Expands to the positional parameters, starting from one
+$#	Expands to the number of positional parameters
+$?	Expands to the exit status of the most recently executed process
+$-	Expands to the current option flags as specified upon invocation
+$$	Expands to the process id of the shell
+$!	Expands to the process id of the most recently executed background (async) cmd
+$_	Contains the absolute filename of the shell or script (doesn't work; see snippets)
+$0	Expands to the name of the shell or shell script
+$[1-n] Expands to the positional parameter
+
+############################################
+# parameter expansion
+############################################
+${var:-value}	# if var is unset or empty, expand it to value
+${var#pattern}	# chop the shortest match of pattern from the front of var
+${var##pattern}	# chop the longest match of pattern from the front of var
+${var%pattern}	# chop the shortest match of pattern from the end of var
+${var%%pattern}	# chop the longest match of pattern from the end of var
+
+# examples
+> THIS="Example"
+> THIS=${THIS:-"Not Set"}
+> THAT=${THAT:-"Not Set"}
+> echo $THIS
+Example
+> echo $THAT
+Not Set
+
+> MYFILENAME="/home/digby/myfile.txt"
+> FILE=${MYFILENAME##*/}	# FILE becomes "myfile.txt"
+> DIR=${MYFILENAME%/*}		# DIR becomes "/home/digby"
+
+############################################
+# redirection
+############################################
+ls -l > ls-l.txt	# redirect stdout to file
+ls -l 2> ls-l.txt	# redirect stderr to file
+ls -l &> ls-l.txt	# redirect stdout & stderr to file
+grep da * 1>&2		# stderr written to stdout's file descriptor
+grep da * 2>&1		# stdout written to stderr's file descriptor
+
+
+############################################
+# if tests
+############################################
+[ -a FILE ]		# file exists
+[ -b FILE ]		# file exists and is a block-special file
+[ -c FILE ]		# file exists and is a character-special file
+[ -d FILE ]		# file exists and is a directory
+[ -e FILE ]		# file exists
+[ -f FILE ]		# file exists and is a regular file
+[ -g FILE ]		# file exists and setgid bit is set
+[ -h FILE ]		# file exists and is a symbolic link
+[ -k FILE ]		# file exists and sticky bit is set
+[ -L FILE ]		# file exists and is a symbolic link
+[ -O FILE ]		# file exists and you own the file
+[ -p FILE ]		# file exists and is a named pipe
+[ -r FILE ]		# file exists and is readable
+[ -s FILE ]		# file exists and size is greater than zero
+[ -S FILE ]		# file exists and is a socket
+[ -t FD ]		# file descriptor is open and refers to a terminal
+[ -u FILE ]		# file exists and setuid bit is set
+[ -w FILE ]		# file exists and is writable
+[ -x FILE ]		# file exists and is executable
+[ -O FILE ]		# file exists and is owned by the effective user ID
+[ -G FILE ]		# file exists and is owned by the effective group ID
+[ -L FILE ]		# file exists and is a symbolic link
+[ -N FILE ]		# file exists and has been modified since it was last read
+[ -S FILE ]		# file exists and is a socket
+
+[ FILE1 -nt FILE2 ]		# True if FILE1 has been changed more recently than FILE2, or if FILE1 exists and FILE2 doesn't
+[ FILE1 -ot FILE2 ]		# True if FILE1 is older than FILE2, or if FILE2 exists and FILE1 doesn't
+[ FILE1 -ef FILE2 ]		# True if FILE1 and FILE2 refer to the same device and inode numbers
+
+[ -z STRING ]	# length of STRING is zero
+[ -n STRING ]	# length of STRING is non-zero
+[ STRING = STRING ]
+[ STRING != STRING ]
+[ NUM -eq NUM ]
+[ NUM -ne NUM ]
+
+
+############################################
+# arrays
+############################################
+array=( zero one two three four five )
+array_len=${#array[*]}	# number of elements in array (length)
+echo ${array[@]}
+
+############################################
+# control statements
+############################################
+if [ test ] ; then
+	<body>
+else
+	<body>
+fi
+
+case VAR in
+	Result1)
+		<body>;;
+	Result2)
+		<body>;;
+	*)
+		<body>;;
+esac
+
+for VAR in LIST; do
+	<body>
+done
+
+while [ test ] ; do
+	<body>
+done
+
+
+############################################
+# snippets
+############################################
+# require at least one argument
+if [ $# -lt 1 ]; then
+    echo "usage: $0 file [file ...]"
+    exit 1
+fi
+
+# loop over input arguments
+for file in $@; do
+	pylint --reports=n --include-ids=y $file
+done
+
+# read variables from STDIN only if there is STDIN
+if ! [ -t 0 ]; then
+    read VAR1 VAR2 VAR3 VAR4
+fi
+
+# get absolute path of script
+SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
+SCRIPT_NAME=$( basename $0 )
+SCRIPT_PATH=$SCRIPT_DIR/$SCRIPT_NAME
+
